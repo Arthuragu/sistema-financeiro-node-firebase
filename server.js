@@ -13,6 +13,10 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+// Faz a página inicial (/) abrir direto no login.html
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/login.html');
+});
 app.use(express.static('public')); // Serve o HTML, CSS e JS
 
 // ==========================================

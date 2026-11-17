@@ -3,53 +3,246 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - dev.finance$</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- SDKs do Firebase (Compat - padrão simples dos slides) -->
+  <title>Login - fin.control$</title>
+  <!-- SDKs do Firebase (Compat - simples e direto) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* CARD PRINCIPAL DIVIDIDO EM 2 COLUNAS (IGUAL À IMAGEM) */
+    .login-card {
+      background: #fff;
+      width: 100%;
+      max-width: 860px;
+      min-height: 500px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* PAINEL ESQUERDO VERDE */
+    .painel-verde {
+      background-color: #2ecc71;
+      color: #fff;
+      width: 38%;
+      padding: 40px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .painel-verde .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      background: rgba(0, 0, 0, 0.12);
+      padding: 8px 18px;
+      border-radius: 20px;
+    }
+
+    .painel-verde h2 {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+
+    .painel-verde p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+      padding: 12px 36px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-outline:hover {
+      background: #fff;
+      color: #2ecc71;
+    }
+
+    /* PAINEL DIREITO BRANCO (FORMULÁRIO) */
+    .painel-form {
+      width: 62%;
+      padding: 45px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .painel-form h1 {
+      color: #2ecc71;
+      font-size: 1.7rem;
+      margin-bottom: 22px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    form {
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .campo-grupo {
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .campo-grupo span {
+      font-size: 1.1rem;
+      color: #888;
+    }
+
+    .campo-grupo input {
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-size: 0.95rem;
+      color: #333;
+      outline: none;
+    }
+
+    .btn-principal {
+      background-color: #2ecc71;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: 0.2s;
+    }
+
+    .btn-principal:hover {
+      background-color: #27ae60;
+    }
+
+    .divisor {
+      margin: 14px 0;
+      font-size: 0.85rem;
+      color: #999;
+    }
+
+    .btn-google {
+      width: 100%;
+      max-width: 360px;
+      background-color: #fff;
+      color: #444;
+      border: 1px solid #ddd;
+      padding: 12px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: 0.2s;
+    }
+
+    .btn-google:hover {
+      background-color: #f8f9fa;
+      border-color: #bbb;
+    }
+
+    #msg-status {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: #e74c3c;
+      text-align: center;
+      min-height: 20px;
+    }
+
+    /* Responsivo para telas menores */
+    @media (max-width: 700px) {
+      .login-card { flex-direction: column; }
+      .painel-verde, .painel-form { width: 100%; padding: 30px 20px; }
+    }
+  </style>
 </head>
 <body>
 
-  <header>
-    <h1>dev<span>.</span>finance<span>$</span></h1>
-  </header>
+  <div class="login-card">
+    <!-- LADO ESQUERDO VERDE -->
+    <div class="painel-verde">
+      <div class="logo">fin.control$</div>
+      <h2 id="lado-titulo">Bem-vindo de volta</h2>
+      <p id="lado-texto">Acesse sua conta agora para controlar suas finanças.</p>
+      <button type="button" class="btn-outline" id="btn-alternar-modo">ENTRAR</button>
+    </div>
 
-  <main class="container">
-    <section class="bloco" style="max-width: 420px; margin: -4.5rem auto 0;">
-      <h2 style="text-align: center; margin-bottom: 1.5rem;">Acessar Sistema</h2>
+    <!-- LADO DIREITO FORMULÁRIO -->
+    <div class="painel-form">
+      <h1 id="form-titulo">CRIE SUA CONTA</h1>
 
-      <!-- Botão Login com Google -->
-      <button type="button" id="btn-google" class="btn-google">
-        Entrar com Google
-      </button>
+      <form id="form-auth">
+        <div class="campo-grupo" id="grupo-nome">
+          <span>👤</span>
+          <input type="text" id="auth-nome" placeholder="NOME">
+        </div>
 
-      <p style="text-align: center; margin: 15px 0; color: #969cb3;">ou use seu e-mail</p>
+        <div class="campo-grupo">
+          <span>✉️</span>
+          <input type="email" id="auth-email" placeholder="E-MAIL" required>
+        </div>
 
-      <!-- Formulário E-mail e Senha -->
-      <form id="form-login" style="display: flex; flex-direction: column; gap: 12px;">
-        <input type="email" id="login-email" placeholder="Seu e-mail" required>
-        <input type="password" id="login-senha" placeholder="Sua senha (mín. 6 caracteres)" required>
-        <button type="submit" class="btn-salvar">Entrar</button>
-        <button type="button" id="btn-cadastrar" class="btn-editar" style="padding: 10px;">
-          Criar nova conta
-        </button>
+        <div class="campo-grupo">
+          <span>🔒</span>
+          <input type="password" id="auth-senha" placeholder="SENHA (mín. 6 dígitos)" required>
+        </div>
+
+        <button type="submit" class="btn-principal" id="btn-submit">CADASTRAR</button>
       </form>
 
-      <p id="msg-erro" style="color: #e92929; text-align: center; margin-top: 12px; font-size: 0.9rem;"></p>
-    </section>
-  </main>
+      <div class="divisor">ou continue com</div>
+
+      <button type="button" class="btn-google" id="btn-google">
+        <strong style="color: #4285F4; font-size: 1.1rem;">G</strong> Entrar com Google
+      </button>
+
+      <p id="msg-status"></p>
+    </div>
+  </div>
 
   <script>
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+    const firebaseConfig = {
   apiKey: "AIzaSyDxCnk3z7q2i_36dfcNihDd3KP3eHoo10g",
   authDomain: "projeto-financeiro-1a95c.firebaseapp.com",
   projectId: "projeto-financeiro-1a95c",
@@ -59,60 +252,95 @@ const firebaseConfig = {
   measurementId: "G-RT8GQBHRYH"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    // Inicializa o Firebase com tratamento de erro visível na tela
+    let auth = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
 
-    // Inicializa o Firebase Auth
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+      // Se já estiver logado, vai direto para o sistema
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          window.location.href = 'index.html';
+        }
+      });
+    } catch (erro) {
+      document.getElementById('msg-status').innerText =
+        'Configure o firebaseConfig real no código para ativar o login.';
+    }
 
-    // Se já estiver logado, vai direto para o sistema
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        window.location.href = 'index.html';
+    // Controle simples para alternar entre "Criar Conta" e "Entrar"
+    let modoCadastro = true;
+    const btnAlternar = document.getElementById('btn-alternar-modo');
+
+    btnAlternar.addEventListener('click', () => {
+      modoCadastro = !modoCadastro;
+      document.getElementById('msg-status').innerText = '';
+
+      if (modoCadastro) {
+        document.getElementById('form-titulo').innerText = 'CRIE SUA CONTA';
+        document.getElementById('btn-submit').innerText = 'CADASTRAR';
+        document.getElementById('grupo-nome').style.display = 'flex';
+        document.getElementById('lado-titulo').innerText = 'Bem-vindo de volta';
+        document.getElementById('lado-texto').innerText = 'Já possui cadastro? Clique abaixo para entrar.';
+        btnAlternar.innerText = 'ENTRAR';
+      } else {
+        document.getElementById('form-titulo').innerText = 'ACESSAR CONTA';
+        document.getElementById('btn-submit').innerText = 'ENTRAR';
+        document.getElementById('grupo-nome').style.display = 'none';
+        document.getElementById('lado-titulo').innerText = 'Novo por aqui?';
+        document.getElementById('lado-texto').innerText = 'Crie sua conta agora e organize suas finanças.';
+        btnAlternar.innerText = 'CRIAR CONTA';
       }
     });
 
-    // 1. Login com Google (Popup)
-    document.getElementById('btn-google').addEventListener('click', () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(() => {
-          window.location.href = 'index.html';
-        })
-        .catch(erro => {
-          document.getElementById('msg-erro').innerText = 'Erro ao entrar com Google: ' + erro.message;
-        });
-    });
-
-    // 2. Login com E-mail e Senha
-    document.getElementById('form-login').addEventListener('submit', (e) => {
+    // Envio do formulário (Cadastrar ou Entrar com E-mail/Senha)
+    document.getElementById('form-auth').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('login-email').value;
-      const senha = document.getElementById('login-senha').value;
+      const msg = document.getElementById('msg-status');
+      msg.innerText = '';
 
-      auth.signInWithEmailAndPassword(email, senha)
-        .then(() => {
-          window.location.href = 'index.html';
-        })
-        .catch(() => {
-          document.getElementById('msg-erro').innerText = 'E-mail ou senha inválidos.';
-        });
+      if (!auth) {
+        msg.innerText = 'Erro: firebaseConfig não configurado no login.html.';
+        return;
+      }
+
+      const nome = document.getElementById('auth-nome').value;
+      const email = document.getElementById('auth-email').value;
+      const senha = document.getElementById('auth-senha').value;
+
+      try {
+        if (modoCadastro) {
+          const credencial = await auth.createUserWithEmailAndPassword(email, senha);
+          if (nome) {
+            await credencial.user.updateProfile({ displayName: nome });
+          }
+        } else {
+          await auth.signInWithEmailAndPassword(email, senha);
+        }
+        window.location.href = 'index.html';
+      } catch (erro) {
+        msg.innerText = 'Erro: ' + erro.message;
+      }
     });
 
-    // 3. Criar nova conta com E-mail e Senha
-    document.getElementById('btn-cadastrar').addEventListener('click', () => {
-      const email = document.getElementById('login-email').value;
-      const senha = document.getElementById('login-senha').value;
+    // Login com Google
+    document.getElementById('btn-google').addEventListener('click', async () => {
+      const msg = document.getElementById('msg-status');
+      msg.innerText = '';
 
-      auth.createUserWithEmailAndPassword(email, senha)
-        .then(() => {
-          window.location.href = 'index.html';
-        })
-        .catch(erro => {
-          document.getElementById('msg-erro').innerText = 'Erro ao cadastrar: ' + erro.message;
-        });
+      if (!auth) {
+        msg.innerText = 'Erro: firebaseConfig não configurado no login.html.';
+        return;
+      }
+
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithPopup(provider);
+        window.location.href = 'index.html';
+      } catch (erro) {
+        msg.innerText = 'Erro no Google Login: ' + erro.message;
+      }
     });
   </script>
 </body>
