@@ -2,29 +2,42 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Controle Financeiro - AT2N2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Sistema Financeiro</h1>
-  <div id="resumo">Saldo Total: R$ 0.00</div>
 
-  <div class="container">
-    <!-- CRUD 1: CATEGORIAS -->
-    <section class="card">
-      <h2>1. Categorias</h2>
-      <form id="form-categoria">
-        <input type="hidden" id="cat-id">
-        <input type="text" id="cat-nome" placeholder="Nome da categoria (ex: Alimentação)" required>
-        <button type="submit">Salvar Categoria</button>
-      </form>
-      <ul id="lista-categorias"></ul>
+  <!-- CABEÇALHO -->
+  <header>
+    <h1>fin<span>.control</span>$</h1>
+    <p>Sistema Financeiro Pessoal</p>
+  </header>
+
+  <main>
+    <!-- RESUMO: Entradas, Saídas e Total -->
+    <section class="resumo">
+      <div class="resumo-card">
+        <div class="resumo-topo"><span>Entradas</span><span class="icone verde">↑</span></div>
+        <strong id="total-entradas">R$ 0,00</strong>
+      </div>
+      <div class="resumo-card">
+        <div class="resumo-topo"><span>Saídas</span><span class="icone vermelho">↓</span></div>
+        <strong id="total-saidas">R$ 0,00</strong>
+      </div>
+      <div class="resumo-card total" id="card-total">
+        <div class="resumo-topo"><span>Saldo Total</span><span class="icone">$</span></div>
+        <strong id="saldo-total">R$ 0,00</strong>
+      </div>
     </section>
 
     <!-- CRUD 2: TRANSAÇÕES (COM JOIN) -->
-    <section class="card">
-      <h2>2. Transações (Join com Categoria)</h2>
-      <form id="form-transacao">
+    <section class="painel">
+      <h2>Transações <small>Join com Categoria</small></h2>
+
+      <form id="form-transacao" class="form-linha">
         <input type="hidden" id="trans-id">
         <input type="text" id="trans-desc" placeholder="Descrição (ex: Almoço)" required>
         <input type="number" step="0.01" id="trans-valor" placeholder="Valor (R$)" required>
@@ -35,23 +48,52 @@
         <select id="trans-categoria" required>
           <option value="">Selecione uma categoria...</option>
         </select>
-        <button type="submit">Salvar Transação</button>
+        <button type="submit" class="btn-salvar">Salvar</button>
+        <button type="button" class="btn-cancelar" onclick="cancelarEdicao('form-transacao')" hidden>Cancelar</button>
       </form>
-      <ul id="lista-transacoes"></ul>
+
+      <div class="tabela-box">
+        <table>
+          <thead>
+            <tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th></th></tr>
+          </thead>
+          <tbody id="lista-transacoes"></tbody>
+        </table>
+      </div>
+      <p class="vazio" id="vazio-transacoes">Nenhuma transação cadastrada ainda.</p>
     </section>
 
-    <!-- CRUD 3: METAS -->
-    <section class="card">
-      <h2>3. Metas Financeiras</h2>
-      <form id="form-meta">
-        <input type="hidden" id="meta-id">
-        <input type="text" id="meta-titulo" placeholder="Objetivo (ex: Notebook)" required>
-        <input type="number" step="0.01" id="meta-valor" placeholder="Valor Alvo (R$)" required>
-        <button type="submit">Salvar Meta</button>
-      </form>
-      <ul id="lista-metas"></ul>
-    </section>
-  </div>
+    <div class="duas-colunas">
+      <!-- CRUD 1: CATEGORIAS -->
+      <section class="painel">
+        <h2>Categorias</h2>
+        <form id="form-categoria" class="form-linha">
+          <input type="hidden" id="cat-id">
+          <input type="text" id="cat-nome" placeholder="Nome (ex: Alimentação)" required>
+          <button type="submit" class="btn-salvar">Salvar</button>
+          <button type="button" class="btn-cancelar" onclick="cancelarEdicao('form-categoria')" hidden>Cancelar</button>
+        </form>
+        <ul id="lista-categorias"></ul>
+        <p class="vazio" id="vazio-categorias">Nenhuma categoria cadastrada.</p>
+      </section>
+
+      <!-- CRUD 3: METAS -->
+      <section class="painel">
+        <h2>Metas Financeiras</h2>
+        <form id="form-meta" class="form-linha">
+          <input type="hidden" id="meta-id">
+          <input type="text" id="meta-titulo" placeholder="Objetivo (ex: Notebook)" required>
+          <input type="number" step="0.01" id="meta-valor" placeholder="Valor alvo (R$)" required>
+          <button type="submit" class="btn-salvar">Salvar</button>
+          <button type="button" class="btn-cancelar" onclick="cancelarEdicao('form-meta')" hidden>Cancelar</button>
+        </form>
+        <ul id="lista-metas"></ul>
+        <p class="vazio" id="vazio-metas">Nenhuma meta cadastrada.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer>AT2N2 · Node.js + Firebase</footer>
 
   <script src="script.js"></script>
 </body>

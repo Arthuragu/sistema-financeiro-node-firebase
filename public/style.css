@@ -1,61 +1,334 @@
+/* ==========================================
+   VARIÁVEIS DE COR (mude aqui para trocar o tema)
+   ========================================== */
+:root {
+  --verde-escuro: #1f4d36;
+  --verde: #2fbf71;
+  --vermelho: #e63e5c;
+  --fundo: #f0f2f5;
+  --texto: #363f5f;
+  --texto-claro: #969cb3;
+  --borda: #e6e8ee;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f9;
-  padding: 20px;
+  margin: 0;
+  font-family: 'Poppins', Arial, sans-serif;
+  background-color: var(--fundo);
+  color: var(--texto);
 }
 
-#resumo {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #2c3e50;
-}
-
-.container {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.card {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  flex: 1;
-  min-width: 280px;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-input, select, button {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-button {
-  background-color: #007bff;
+/* ---------- CABEÇALHO ---------- */
+header {
+  background-color: var(--verde-escuro);
   color: white;
-  border: none;
+  text-align: center;
+  padding: 35px 20px 110px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+header h1 span {
+  font-weight: 400;
+}
+
+header p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+main {
+  max-width: 1000px;
+  margin: -75px auto 0;
+  padding: 0 20px 20px;
+}
+
+/* ---------- CARDS DE RESUMO ---------- */
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.resumo-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.resumo-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.resumo-card strong {
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.icone {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.icone.verde {
+  color: var(--verde);
+  border: 2px solid var(--verde);
+}
+
+.icone.vermelho {
+  color: var(--vermelho);
+  border: 2px solid var(--vermelho);
+}
+
+/* Card do saldo total: verde se positivo, vermelho se negativo */
+.resumo-card.total {
+  background: var(--verde);
+  color: white;
+}
+
+.resumo-card.total.negativo {
+  background: var(--vermelho);
+}
+
+/* ---------- PAINÉIS (cada CRUD) ---------- */
+.painel {
+  background: white;
+  border-radius: 8px;
+  padding: 22px 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.painel h2 {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.painel h2 small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--texto-claro);
+  margin-left: 8px;
+}
+
+.duas-colunas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+/* ---------- FORMULÁRIOS ---------- */
+.form-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.form-linha input[type="text"],
+.form-linha input[type="number"],
+.form-linha select {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  background: #fafbfc;
+}
+
+.form-linha input:focus,
+.form-linha select:focus {
+  outline: none;
+  border-color: var(--verde);
+  background: white;
+}
+
+/* ---------- BOTÕES ---------- */
+button {
+  font-family: inherit;
+  font-size: 14px;
   cursor: pointer;
+  border-radius: 6px;
+  border: none;
 }
 
-button:hover {
-  background-color: #0056b3;
+.btn-salvar {
+  background: var(--verde);
+  color: white;
+  padding: 10px 22px;
 }
 
+.btn-salvar:hover {
+  background: #26a862;
+}
+
+.btn-cancelar {
+  background: white;
+  color: var(--vermelho);
+  border: 1px solid var(--vermelho);
+  padding: 10px 18px;
+}
+
+.btn-cancelar:hover {
+  background: #fdeef1;
+}
+
+.btn-icone {
+  background: none;
+  padding: 4px 8px;
+  font-size: 16px;
+  color: var(--texto-claro);
+}
+
+.btn-icone:hover {
+  color: var(--texto);
+}
+
+.btn-icone.excluir:hover {
+  color: var(--vermelho);
+}
+
+/* ---------- TABELA DE TRANSAÇÕES ---------- */
+.tabela-box {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--texto-claro);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--borda);
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--borda);
+}
+
+tbody tr:hover {
+  background: #fafbfc;
+}
+
+td.acoes {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  background: #e6f7ee;
+  color: #1f8a52;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.valor-positivo {
+  color: var(--verde);
+  white-space: nowrap;
+}
+
+.valor-negativo {
+  color: var(--vermelho);
+  white-space: nowrap;
+}
+
+/* ---------- LISTAS (categorias e metas) ---------- */
 ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 li {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--borda);
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+.meta-info {
+  flex: 1;
+}
+
+.meta-info small {
+  display: block;
+  color: var(--texto-claro);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.barra {
+  height: 8px;
+  background: var(--borda);
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.barra div {
+  height: 100%;
+  background: var(--verde);
+  border-radius: 4px;
+}
+
+/* Mensagem quando a lista está vazia */
+.vazio {
+  text-align: center;
+  color: var(--texto-claro);
+  font-size: 14px;
+  margin: 10px 0 0;
+}
+
+footer {
+  text-align: center;
+  color: var(--texto-claro);
+  font-size: 13px;
+  padding: 10px 0 30px;
+}
+
+/* ---------- CELULAR ---------- */
+@media (max-width: 760px) {
+  .resumo,
+  .duas-colunas {
+    grid-template-columns: 1fr;
+  }
 }

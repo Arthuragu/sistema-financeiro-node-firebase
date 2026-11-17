@@ -33,6 +33,51 @@ class Meta {
 }
 
 // ==========================================
+// FUNÇÕES AUXILIARES
+// ==========================================
+
+// Listas guardadas em memória (usadas ao clicar em "Editar")
+let categorias = [];
+let transacoes = [];
+let metas = [];
+let saldoTotal = 0;
+
+// Formata número como moeda brasileira: 1234.5 -> R$ 1.234,50
+function moeda(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+// Evita que textos digitados quebrem o HTML (ex: < ou ')
+function limpar(texto) {
+  const div = document.createElement('div');
+  div.innerText = texto;
+  return div.innerHTML;
+}
+
+// Mostra/esconde a mensagem "lista vazia"
+function mostrarVazio(idMensagem, quantidade) {
+  document.getElementById(idMensagem).style.display = quantidade === 0 ? 'block' : 'none';
+}
+
+// Muda o formulário entre "Salvar" (novo) e "Atualizar" (editando)
+function modoEdicao(idForm, editando) {
+  const form = document.getElementById(idForm);
+  form.querySelector('.btn-salvar').innerText = editando ? 'Atualizar' : 'Salvar';
+  form.querySelector('.btn-cancelar').hidden = !editando;
+  if (editando) {
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// Limpa o formulário e volta para o modo "Salvar"
+function cancelarEdicao(idForm) {
+  const form = document.getElementById(idForm);
+  form.reset();
+  form.querySelector('input[type=hidden]').value = '';
+  modoEdicao(idForm, false);
+}
+
+// ==========================================
 // MANIPULAÇÃO DO DOM E REQUISIÇÕES (FETCH)
 // ==========================================
 
@@ -43,17 +88,22 @@ async function carregarCategorias() {
 
   const lista = document.getElementById('lista-categorias');
   const select = document.getElementById('trans-categoria');
+  const categoriaSelecionada = select.value; // mantém a escolha ao recarregar
   lista.innerHTML = '';
   select.innerHTML = '<option value="">Selecione uma categoria...</option>';
+  categorias = [];
 
   dados.forEach(item => {
     const cat = new Categoria(item.id, item.nome);
+    categorias.push(cat);
 
     // Adiciona na lista
     const li = document.createElement('li');
-    li.innerHTML = `${cat.nome} 
-      <button onclick="editarCategoria('${cat.id}', '${cat.nome}')">Editar</button>
-      <button onclick="deletarCategoria('${cat.id}')">Excluir</button>`;
+    li.innerHTML = `<span>${limpar(cat.nome)}</span>
+      <span>
+        <button class="btn-icone" title="Editar" onclick="editarCategoria('${cat.id}')">✎</button>
+        <button class="btn-icone excluir" title="Excluir" onclick="deletarCategoria('${cat.id}')">✕</button>
+      </span>`;
     lista.appendChild(li);
 
     // Adiciona no <select> de transações
@@ -62,6 +112,9 @@ async function carregarCategorias() {
     option.innerText = cat.nome;
     select.appendChild(option);
   });
+
+  select.value = categoriaSelecionada;
+  mostrarVazio('vazio-categorias', categorias.length);
 }
 
 document.getElementById('form-categoria').addEventListener('submit', async function(e) {
@@ -78,14 +131,15 @@ document.getElementById('form-categoria').addEventListener('submit', async funct
     body: JSON.stringify({ nome })
   });
 
-  document.getElementById('cat-id').value = '';
-  document.getElementById('cat-nome').value = '';
+  cancelarEdicao('form-categoria');
   carregarTudo();
 });
 
-function editarCategoria(id, nome) {
-  document.getElementById('cat-id').value = id;
-  document.getElementById('cat-nome').value = nome;
+function editarCategoria(id) {
+  const cat = categorias.find(c => c.id === id);
+  document.getElementById('cat-id').value = cat.id;
+  document.getElementById('cat-nome').value = cat.nome;
+  modoEdicao('form-categoria', true);
 }
 
 async function deletarCategoria(id) {
@@ -100,21 +154,43 @@ async function carregarTransacoes() {
 
   const lista = document.getElementById('lista-transacoes');
   lista.innerHTML = '';
-  let saldoTotal = 0;
+  transacoes = [];
+  let entradas = 0;
+  let saidas = 0;
 
   dados.forEach(item => {
     const t = new Transacao(item.id, item.descricao, item.valor, item.tipo, item.categoriaId, item.categoriaNome);
-    saldoTotal += t.getValorComSinal();
+    transacoes.push(t);
 
-    const li = document.createElement('li');
-    li.innerHTML = `<strong>${t.descricao}</strong> - R$ ${t.valor.toFixed(2)} (${t.tipo}) 
-      | Categoria: <em>${t.categoriaNome}</em>
-      <button onclick="editarTransacao('${t.id}', '${t.descricao}', ${t.valor}, '${t.tipo}', '${t.categoriaId}')">Editar</button>
-      <button onclick="deletarTransacao('${t.id}')">Excluir</button>`;
-    lista.appendChild(li);
+    if (t.tipo === 'despesa') {
+      saidas += t.valor;
+    } else {
+      entradas += t.valor;
+    }
+
+    const classe = t.tipo === 'despesa' ? 'valor-negativo' : 'valor-positivo';
+    const sinal = t.tipo === 'despesa' ? '- ' : '+ ';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${limpar(t.descricao)}</td>
+      <td><span class="badge">${limpar(t.categoriaNome)}</span></td>
+      <td class="${classe}">${sinal}${moeda(t.valor)}</td>
+      <td class="acoes">
+        <button class="btn-icone" title="Editar" onclick="editarTransacao('${t.id}')">✎</button>
+        <button class="btn-icone excluir" title="Excluir" onclick="deletarTransacao('${t.id}')">✕</button>
+      </td>`;
+    lista.appendChild(tr);
   });
 
-  document.getElementById('resumo').innerText = `Saldo Total: R$ ${saldoTotal.toFixed(2)}`;
+  saldoTotal = entradas - saidas;
+
+  // Atualiza os 3 cards do topo
+  document.getElementById('total-entradas').innerText = '+ ' + moeda(entradas);
+  document.getElementById('total-saidas').innerText = '- ' + moeda(saidas);
+  document.getElementById('saldo-total').innerText = moeda(saldoTotal);
+  document.getElementById('card-total').classList.toggle('negativo', saldoTotal < 0);
+  mostrarVazio('vazio-transacoes', transacoes.length);
 }
 
 document.getElementById('form-transacao').addEventListener('submit', async function(e) {
@@ -136,22 +212,23 @@ document.getElementById('form-transacao').addEventListener('submit', async funct
     body: JSON.stringify(corpo)
   });
 
-  document.getElementById('form-transacao').reset();
-  document.getElementById('trans-id').value = '';
-  carregarTransacoes();
+  cancelarEdicao('form-transacao');
+  carregarTudo(); // recarrega tudo porque o saldo também muda as metas
 });
 
-function editarTransacao(id, desc, valor, tipo, catId) {
-  document.getElementById('trans-id').value = id;
-  document.getElementById('trans-desc').value = desc;
-  document.getElementById('trans-valor').value = valor;
-  document.getElementById('trans-tipo').value = tipo;
-  document.getElementById('trans-categoria').value = catId;
+function editarTransacao(id) {
+  const t = transacoes.find(item => item.id === id);
+  document.getElementById('trans-id').value = t.id;
+  document.getElementById('trans-desc').value = t.descricao;
+  document.getElementById('trans-valor').value = t.valor;
+  document.getElementById('trans-tipo').value = t.tipo;
+  document.getElementById('trans-categoria').value = t.categoriaId;
+  modoEdicao('form-transacao', true);
 }
 
 async function deletarTransacao(id) {
   await fetch(`/api/transacoes/${id}`, { method: 'DELETE' });
-  carregarTransacoes();
+  carregarTudo();
 }
 
 // --- METAS ---
@@ -161,15 +238,31 @@ async function carregarMetas() {
 
   const lista = document.getElementById('lista-metas');
   lista.innerHTML = '';
+  metas = [];
 
   dados.forEach(item => {
     const meta = new Meta(item.id, item.titulo, item.valorAlvo);
+    metas.push(meta);
+
+    // Barra de progresso: saldo atual dividido pelo valor alvo (entre 0% e 100%)
+    let porcentagem = (saldoTotal / meta.valorAlvo) * 100;
+    porcentagem = Math.max(0, Math.min(100, porcentagem));
+
     const li = document.createElement('li');
-    li.innerHTML = `${meta.titulo} - Alvo: R$ ${meta.valorAlvo.toFixed(2)}
-      <button onclick="editarMeta('${meta.id}', '${meta.titulo}', ${meta.valorAlvo})">Editar</button>
-      <button onclick="deletarMeta('${meta.id}')">Excluir</button>`;
+    li.innerHTML = `
+      <div class="meta-info">
+        <strong>${limpar(meta.titulo)}</strong>
+        <small>Alvo: ${moeda(meta.valorAlvo)} · ${porcentagem.toFixed(0)}% alcançado</small>
+        <div class="barra"><div style="width: ${porcentagem}%"></div></div>
+      </div>
+      <span>
+        <button class="btn-icone" title="Editar" onclick="editarMeta('${meta.id}')">✎</button>
+        <button class="btn-icone excluir" title="Excluir" onclick="deletarMeta('${meta.id}')">✕</button>
+      </span>`;
     lista.appendChild(li);
   });
+
+  mostrarVazio('vazio-metas', metas.length);
 }
 
 document.getElementById('form-meta').addEventListener('submit', async function(e) {
@@ -189,27 +282,29 @@ document.getElementById('form-meta').addEventListener('submit', async function(e
     body: JSON.stringify(corpo)
   });
 
-  document.getElementById('form-meta').reset();
-  document.getElementById('meta-id').value = '';
-  carregarMetas();
+  cancelarEdicao('form-meta');
+  carregarTudo();
 });
 
-function editarMeta(id, titulo, valor) {
-  document.getElementById('meta-id').value = id;
-  document.getElementById('meta-titulo').value = titulo;
-  document.getElementById('meta-valor').value = valor;
+function editarMeta(id) {
+  const meta = metas.find(m => m.id === id);
+  document.getElementById('meta-id').value = meta.id;
+  document.getElementById('meta-titulo').value = meta.titulo;
+  document.getElementById('meta-valor').value = meta.valorAlvo;
+  modoEdicao('form-meta', true);
 }
 
 async function deletarMeta(id) {
   await fetch(`/api/metas/${id}`, { method: 'DELETE' });
-  carregarMetas();
+  carregarTudo();
 }
 
 // Inicializa tudo ao abrir a página
-function carregarTudo() {
-  carregarCategorias();
-  carregarTransacoes();
-  carregarMetas();
+// (transações primeiro, porque as metas usam o saldo total)
+async function carregarTudo() {
+  await carregarTransacoes();
+  await carregarCategorias();
+  await carregarMetas();
 }
 
 carregarTudo();
