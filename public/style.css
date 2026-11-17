@@ -332,3 +332,44 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* BOTÃO GOOGLE E BARRA DE USUÁRIO */
+.btn-google {
+  width: 100%;
+  background-color: #4285f4;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn-google:hover {
+  background-color: #3367d6;
+}
+
+.usuario-bar {
+  margin-top: 10px;
+  color: #dce0e6;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-sair {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-sair:hover {
+  background-color: #e92929;
+  border-color: #e92929;
+}

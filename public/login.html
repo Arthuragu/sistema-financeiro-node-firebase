@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - dev.finance$</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- SDKs do Firebase (Compat - padrão simples dos slides) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>dev<span>.</span>finance<span>$</span></h1>
+  </header>
+
+  <main class="container">
+    <section class="bloco" style="max-width: 420px; margin: -4.5rem auto 0;">
+      <h2 style="text-align: center; margin-bottom: 1.5rem;">Acessar Sistema</h2>
+
+      <!-- Botão Login com Google -->
+      <button type="button" id="btn-google" class="btn-google">
+        Entrar com Google
+      </button>
+
+      <p style="text-align: center; margin: 15px 0; color: #969cb3;">ou use seu e-mail</p>
+
+      <!-- Formulário E-mail e Senha -->
+      <form id="form-login" style="display: flex; flex-direction: column; gap: 12px;">
+        <input type="email" id="login-email" placeholder="Seu e-mail" required>
+        <input type="password" id="login-senha" placeholder="Sua senha (mín. 6 caracteres)" required>
+        <button type="submit" class="btn-salvar">Entrar</button>
+        <button type="button" id="btn-cadastrar" class="btn-editar" style="padding: 10px;">
+          Criar nova conta
+        </button>
+      </form>
+
+      <p id="msg-erro" style="color: #e92929; text-align: center; margin-top: 12px; font-size: 0.9rem;"></p>
+    </section>
+  </main>
+
+  <script>
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDxCnk3z7q2i_36dfcNihDd3KP3eHoo10g",
+  authDomain: "projeto-financeiro-1a95c.firebaseapp.com",
+  projectId: "projeto-financeiro-1a95c",
+  storageBucket: "projeto-financeiro-1a95c.firebasestorage.app",
+  messagingSenderId: "133382964530",
+  appId: "1:133382964530:web:5aacc21fd6467cc217032b",
+  measurementId: "G-RT8GQBHRYH"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+    // Inicializa o Firebase Auth
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Se já estiver logado, vai direto para o sistema
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = 'index.html';
+      }
+    });
+
+    // 1. Login com Google (Popup)
+    document.getElementById('btn-google').addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(() => {
+          window.location.href = 'index.html';
+        })
+        .catch(erro => {
+          document.getElementById('msg-erro').innerText = 'Erro ao entrar com Google: ' + erro.message;
+        });
+    });
+
+    // 2. Login com E-mail e Senha
+    document.getElementById('form-login').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-senha').value;
+
+      auth.signInWithEmailAndPassword(email, senha)
+        .then(() => {
+          window.location.href = 'index.html';
+        })
+        .catch(() => {
+          document.getElementById('msg-erro').innerText = 'E-mail ou senha inválidos.';
+        });
+    });
+
+    // 3. Criar nova conta com E-mail e Senha
+    document.getElementById('btn-cadastrar').addEventListener('click', () => {
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-senha').value;
+
+      auth.createUserWithEmailAndPassword(email, senha)
+        .then(() => {
+          window.location.href = 'index.html';
+        })
+        .catch(erro => {
+          document.getElementById('msg-erro').innerText = 'Erro ao cadastrar: ' + erro.message;
+        });
+    });
+  </script>
+</body>
+</html>

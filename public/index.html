@@ -7,13 +7,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
   <!-- CABEÇALHO -->
   <header>
-    <h1>fin<span>.control</span>$</h1>
-    <p>Sistema Financeiro Pessoal</p>
+    <h1>dev<span>.</span>finance<span>$</span></h1>
+    <div class="usuario-bar">
+      <span id="usuario-nome">Carregando...</span>
+      <button id="btn-sair" class="btn-sair">Sair</button>
+    </div>
   </header>
 
   <main>

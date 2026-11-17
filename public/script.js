@@ -1,4 +1,48 @@
 // ==========================================
+// AUTENTICAÇÃO FIREBASE (PROTEÇÃO DE ROTA)
+// ==========================================
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDxCnk3z7q2i_36dfcNihDd3KP3eHoo10g",
+  authDomain: "projeto-financeiro-1a95c.firebaseapp.com",
+  projectId: "projeto-financeiro-1a95c",
+  storageBucket: "projeto-financeiro-1a95c.firebasestorage.app",
+  messagingSenderId: "133382964530",
+  appId: "1:133382964530:web:5aacc21fd6467cc217032b",
+  measurementId: "G-RT8GQBHRYH"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// Verifica se o usuário está logado; se não estiver, manda para login.html
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = 'login.html';
+  } else {
+    document.getElementById('usuario-nome').innerText = `Olá, ${user.displayName || user.email}`;
+  }
+});
+
+// Botão Sair (Logout)
+document.getElementById('btn-sair').addEventListener('click', () => {
+  auth.signOut().then(() => {
+    window.location.href = 'login.html';
+  });
+});
+
+// ==========================================
 // CLASSES (POO conforme ensinado nos slides)
 // ==========================================
 class Categoria {
