@@ -16,6 +16,7 @@ auth.onAuthStateChanged(user => {
     window.location.href = 'login.html';
   } else {
     document.getElementById('usuario-nome').innerText = `Olá, ${user.displayName || user.email}`;
+    carregarTudo();
   }
 });
 
@@ -52,10 +53,17 @@ class Transacao {
 }
 
 class Meta {
-  constructor(id, titulo, valorAlvo) {
+  constructor(id, titulo, valorAlvo, valorAtual) {
     this.id = id;
     this.titulo = titulo;
     this.valorAlvo = parseFloat(valorAlvo);
+    this.valorAtual = parseFloat(valorAtual) || 0;
+  }
+
+  // Porcentagem alcançada (limitada entre 0 e 100)
+  getPorcentagem() {
+    if (this.valorAlvo <= 0) return 0;
+    return Math.min(100, (this.valorAtual / this.valorAlvo) * 100);
   }
 }
 
@@ -79,6 +87,23 @@ function limpar(texto) {
   const div = document.createElement('div');
   div.innerText = texto;
   return div.innerHTML;
+}
+
+// Faz a requisição ao servidor enviando o token do usuário logado
+async function api(url, metodo = 'GET', corpo = null) {
+  const token = await auth.currentUser.getIdToken();
+  const opcoes = {
+    method: metodo,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  };
+  if (corpo) {
+    opcoes.body = JSON.stringify(corpo);
+  }
+  const res = await fetch(url, opcoes);
+  return res.json();
 }
 
 // Mostra/esconde a mensagem "lista vazia"
@@ -110,8 +135,7 @@ function cancelarEdicao(idForm) {
 
 // --- CATEGORIAS ---
 async function carregarCategorias() {
-  const res = await fetch('/api/categorias');
-  const dados = await res.json();
+  const dados = await api('/api/categorias');
 
   const lista = document.getElementById('lista-categorias');
   const select = document.getElementById('trans-categoria');
@@ -152,11 +176,7 @@ document.getElementById('form-categoria').addEventListener('submit', async funct
   const metodo = id ? 'PUT' : 'POST';
   const url = id ? `/api/categorias/${id}` : '/api/categorias';
 
-  await fetch(url, {
-    method: metodo,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome })
-  });
+  await api(url, metodo, { nome });
 
   cancelarEdicao('form-categoria');
   carregarTudo();
@@ -170,14 +190,13 @@ function editarCategoria(id) {
 }
 
 async function deletarCategoria(id) {
-  await fetch(`/api/categorias/${id}`, { method: 'DELETE' });
+  await api(`/api/categorias/${id}`, 'DELETE');
   carregarTudo();
 }
 
 // --- TRANSAÇÕES (COM JOIN) ---
 async function carregarTransacoes() {
-  const res = await fetch('/api/transacoes');
-  const dados = await res.json();
+  const dados = await api('/api/transacoes');
 
   const lista = document.getElementById('lista-transacoes');
   lista.innerHTML = '';
@@ -233,11 +252,7 @@ document.getElementById('form-transacao').addEventListener('submit', async funct
   const metodo = id ? 'PUT' : 'POST';
   const url = id ? `/api/transacoes/${id}` : '/api/transacoes';
 
-  await fetch(url, {
-    method: metodo,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(corpo)
-  });
+  await api(url, metodo, corpo);
 
   cancelarEdicao('form-transacao');
   carregarTudo(); // recarrega tudo porque o saldo também muda as metas
@@ -254,32 +269,30 @@ function editarTransacao(id) {
 }
 
 async function deletarTransacao(id) {
-  await fetch(`/api/transacoes/${id}`, { method: 'DELETE' });
+  await api(`/api/transacoes/${id}`, 'DELETE');
   carregarTudo();
 }
 
 // --- METAS ---
 async function carregarMetas() {
-  const res = await fetch('/api/metas');
-  const dados = await res.json();
+  const dados = await api('/api/metas');
 
   const lista = document.getElementById('lista-metas');
   lista.innerHTML = '';
   metas = [];
 
   dados.forEach(item => {
-    const meta = new Meta(item.id, item.titulo, item.valorAlvo);
+    const meta = new Meta(item.id, item.titulo, item.valorAlvo, item.valorAtual);
     metas.push(meta);
 
-    // Barra de progresso: saldo atual dividido pelo valor alvo (entre 0% e 100%)
-    let porcentagem = (saldoTotal / meta.valorAlvo) * 100;
-    porcentagem = Math.max(0, Math.min(100, porcentagem));
+    // Barra de progresso: valor já investido / valor alvo
+    const porcentagem = meta.getPorcentagem();
 
     const li = document.createElement('li');
     li.innerHTML = `
       <div class="meta-info">
         <strong>${limpar(meta.titulo)}</strong>
-        <small>Alvo: ${moeda(meta.valorAlvo)} · ${porcentagem.toFixed(0)}% alcançado</small>
+        <small>${moeda(meta.valorAtual)} de ${moeda(meta.valorAlvo)} · ${porcentagem.toFixed(0)}% alcançado</small>
         <div class="barra"><div style="width: ${porcentagem}%"></div></div>
       </div>
       <span>
@@ -297,17 +310,14 @@ document.getElementById('form-meta').addEventListener('submit', async function(e
   const id = document.getElementById('meta-id').value;
   const corpo = {
     titulo: document.getElementById('meta-titulo').value,
-    valorAlvo: document.getElementById('meta-valor').value
+    valorAlvo: document.getElementById('meta-valor').value,
+    valorAtual: document.getElementById('meta-atual').value || 0
   };
 
   const metodo = id ? 'PUT' : 'POST';
   const url = id ? `/api/metas/${id}` : '/api/metas';
 
-  await fetch(url, {
-    method: metodo,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(corpo)
-  });
+  await api(url, metodo, corpo);
 
   cancelarEdicao('form-meta');
   carregarTudo();
@@ -318,11 +328,12 @@ function editarMeta(id) {
   document.getElementById('meta-id').value = meta.id;
   document.getElementById('meta-titulo').value = meta.titulo;
   document.getElementById('meta-valor').value = meta.valorAlvo;
+  document.getElementById('meta-atual').value = meta.valorAtual;
   modoEdicao('form-meta', true);
 }
 
 async function deletarMeta(id) {
-  await fetch(`/api/metas/${id}`, { method: 'DELETE' });
+  await api(`/api/metas/${id}`, 'DELETE');
   carregarTudo();
 }
 
@@ -333,5 +344,3 @@ async function carregarTudo() {
   await carregarCategorias();
   await carregarMetas();
 }
-
-carregarTudo();

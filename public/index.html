@@ -89,6 +89,7 @@
           <input type="hidden" id="meta-id">
           <input type="text" id="meta-titulo" placeholder="Objetivo (ex: Notebook)" required>
           <input type="number" step="0.01" id="meta-valor" placeholder="Valor alvo (R$)" required>
+          <input type="number" step="0.01" min="0" id="meta-atual" placeholder="Já investido (R$)">
           <button type="submit" class="btn-salvar">Salvar</button>
           <button type="button" class="btn-cancelar" onclick="cancelarEdicao('form-meta')" hidden>Cancelar</button>
         </form>
